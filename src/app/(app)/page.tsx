@@ -1,10 +1,9 @@
-import { ComponentExample } from '@/components/component-example'
-import React from 'react'
+import { Icons } from "@/components/custom/icons";
 
 export default function HomePage() {
   return (
     <div>
-      <ComponentExample />
+      <Icons.gitHub className="size-40" />
     </div>
-  )
+  );
 }
