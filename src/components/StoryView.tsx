@@ -14,6 +14,8 @@ import OutroSlide from "./slides/OutroSlide";
 import ProductivitySlide from "./slides/ProductivitySlide";
 import VelocitySlide from "./slides/VelocitySlide";
 import CompositionSlide from "./slides/CompositionSlide";
+import TopicsSlide from "./slides/TopicsSlide";
+import CommunitySlide from "./slides/CommunitySlide";
 import { Button } from "./ui/button";
 import { AnimatedThemeToggler } from "./custom/animated-theme-toggler";
 import { Skeleton } from "./ui/skeleton";
@@ -24,7 +26,7 @@ interface StoryViewProps {
   data: GitStoryData;
 }
 
-const SLIDE_DURATION = 30 * 1000; // 30 seconds per slide
+const SLIDE_DURATION = 10 * 1000; // 10 seconds per slide
 
 const slides = [
   { id: "intro", component: IntroSlide },
@@ -33,7 +35,9 @@ const slides = [
   { id: "productivity", component: ProductivitySlide },
   { id: "velocity", component: VelocitySlide },
   { id: "languages", component: LanguagesSlide },
+  { id: "topics", component: TopicsSlide },
   { id: "repos", component: ReposSlide },
+  { id: "community", component: CommunitySlide },
   { id: "outro", component: OutroSlide },
 ];
 

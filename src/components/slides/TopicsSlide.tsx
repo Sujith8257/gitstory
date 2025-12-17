@@ -38,12 +38,22 @@ export default function TopicsSlide({ data, isActive }: SlideProps) {
                         <motion.span
                             key={topic}
                             initial={{ scale: 0, opacity: 0 }}
-                            animate={isActive ? { scale: 1, opacity: 1 } : {}}
+                            animate={isActive ? {
+                                scale: 1,
+                                opacity: 1,
+                                y: [0, -10, 0]
+                            } : {}}
                             transition={{
                                 delay: index * 0.05 + 0.3,
                                 type: "spring",
                                 stiffness: 200,
-                                damping: 15
+                                damping: 15,
+                                y: {
+                                    repeat: Infinity,
+                                    duration: 2 + Math.random() * 2,
+                                    ease: "easeInOut",
+                                    delay: Math.random() * 2 // Desynchronize floating
+                                }
                             }}
                             className={`px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 backdrop-blur-md ${size} ${weight}`}
                             style={{
