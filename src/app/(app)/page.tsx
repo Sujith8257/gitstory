@@ -154,7 +154,7 @@ export default function HomePage() {
       url += `?token=${token}`;
     }
 
-    router.push(url);
+    router.push(url as `/${string}`);
   };
 
   return (

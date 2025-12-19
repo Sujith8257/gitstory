@@ -6,6 +6,7 @@ import { ThemeProvider as NextThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { useState } from "react";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(() => new QueryClient());
@@ -21,6 +22,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
         <QueryClientProvider client={queryClient}>
           {children}
           <Analytics />
+          <SpeedInsights />
           <Toaster />
         </QueryClientProvider>
       </NextThemeProvider>
