@@ -451,7 +451,8 @@ export default function HomePage() {
               <img
                 src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1051707&theme=${resolvedTheme === 'light' ? 'light' : 'dark'}`}
                 alt="Featured on Product Hunt"
-                className="w-[200px] sm:w-[250px] h-auto"
+                className="w-[190px] sm:w-[190px] h-auto"
+              // className="w-[200px] sm:w-[250px] h-auto"
               />
             </a>
           )}
