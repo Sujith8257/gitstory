@@ -3,6 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactCompiler: true,
 
+  // Experimental features for Next.js 16.1
+  experimental: {
+    // Better tree-shaking for large icon/utility libraries
+    optimizePackageImports: ["lucide-react", "date-fns", "recharts"],
+  },
+
   // Image optimization for external images (GitHub avatars)
   images: {
     remotePatterns: [
@@ -46,13 +52,6 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-    ];
-  },
-
-  // Redirect www to non-www (optional, configure based on your domain setup)
-  async redirects() {
-    return [
-      // Add any redirects here if needed
     ];
   },
 };

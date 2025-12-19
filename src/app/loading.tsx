@@ -13,7 +13,7 @@ export default function Loading() {
 
             <div className="mt-8 text-center">
                 <p className="text-sm text-muted-foreground font-mono tracking-widest uppercase animate-pulse">
-                    Loading your story...
+                    Loading...
                 </p>
             </div>
         </div>
