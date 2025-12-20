@@ -39,6 +39,7 @@ interface SlideProps {
 export default function OutroSlide({ data, isActive }: SlideProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
   const { resolvedTheme } = useTheme();
@@ -113,13 +114,24 @@ ${data.totalCommits.toLocaleString()} commits this year as "${data.archetype}"
   const handleDownload = useCallback(async () => {
     if (cardRef.current && !isDownloading) {
       setIsDownloading(true);
+      setIsCapturing(true); // Hide BorderBeam during capture
       try {
+        // Temporarily remove rounded corners for cleaner download
+        cardRef.current.classList.remove("rounded-3xl");
+
+        // Small delay to ensure React re-renders without BorderBeam
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
         // skipFonts: true fixes Firefox font undefined error in html-to-image v1.11.13
         const dataUrl = await toPng(cardRef.current, {
           cacheBust: true,
           pixelRatio: 2,
           //   skipFonts: true,
         });
+
+        // Restore rounded corners and BorderBeam
+        cardRef.current.classList.add("rounded-3xl");
+        setIsCapturing(false);
 
         // Convert data URL to blob for better cross-browser compatibility
         const response = await fetch(dataUrl);
@@ -137,6 +149,9 @@ ${data.totalCommits.toLocaleString()} commits this year as "${data.archetype}"
         URL.revokeObjectURL(blobUrl);
       } catch (err) {
         console.error("Failed to download image", err);
+        // Ensure rounded corners and BorderBeam are restored even on error
+        cardRef.current?.classList.add("rounded-3xl");
+        setIsCapturing(false);
       } finally {
         // Small delay to show completion state
         setTimeout(() => setIsDownloading(false), 500);
@@ -197,9 +212,9 @@ ${data.totalCommits.toLocaleString()} commits this year as "${data.archetype}"
         {/* The Card Snapshot */}
         <div
           ref={cardRef}
-          className="w-full aspect-[4/5] bg-card text-card-foreground p-6 md:p-8 pt-5 md:pt-6 relative rounded-3xl shadow-2xl border border-border flex flex-col justify-between scale-95 md:scale-100"
+          className="w-full aspect-[4/5] bg-card text-card-foreground p-6 md:p-8 pt-4 md:pt-5 pb-10! relative rounded-3xl shadow-2xl border border-border flex flex-col justify-between scale-95 md:scale-100"
         >
-          <BorderBeam duration={8} size={100} />
+          {!isCapturing && <BorderBeam duration={8} size={100} />}
           {/* Card ambient glow */}
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
           <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-500/10 blur-[100px] rounded-full pointer-events-none" />
@@ -420,6 +435,21 @@ ${data.totalCommits.toLocaleString()} commits this year as "${data.archetype}"
               </p>
             </div>
           </div>
+
+          {/* Timestamp at bottom edge */}
+          <p className="absolute bottom-2 left-1/2 -translate-x-1/2 font-sans text-[9px] text-muted-foreground/50 tracking-wide">
+            {new Date().toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}{" "}
+            •{" "}
+            {new Date().toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            })}
+          </p>
         </div>
 
         {/* Actions */}
