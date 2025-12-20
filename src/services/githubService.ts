@@ -417,6 +417,7 @@ export const fetchUserStory = async (username: string, token?: string): Promise<
       contributionBreakdown,
       community: communityStats,
       contributions: yearData,
+      joinedAt: user.created_at,
     };
 
   } catch (error) {

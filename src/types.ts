@@ -50,6 +50,7 @@ export interface Language {
     contributionBreakdown: ContributionBreakdown;
     community: CommunityStats;
     contributions: { date: string; count: number }[]; // Raw contribution history
+    joinedAt: string; // ISO date string of when user joined GitHub
   }
   
   export enum SlideType {

@@ -154,5 +154,6 @@ export const MOCK_DATA: GitStoryData = {
       });
     }
     return contribs;
-  })()
+  })(),
+  joinedAt: "2022-03-15T10:30:00Z" // Mock join date ~3 years ago
 };
