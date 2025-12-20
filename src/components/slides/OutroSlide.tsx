@@ -3,7 +3,7 @@
 import { GitStoryData } from "@/types";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { Download, RefreshCw, Loader2 } from "lucide-react";
+import { Download, RefreshCw, Loader2, Star, Lock } from "lucide-react";
 import Link from "next/link";
 import { useRef, useCallback, useEffect, useState } from "react";
 import { toPng } from "html-to-image";
@@ -21,7 +21,13 @@ interface SlideProps {
 export default function OutroSlide({ data, isActive }: SlideProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { resolvedTheme } = useTheme();
+
+  // Track when component has mounted to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isActive) {
@@ -131,7 +137,7 @@ export default function OutroSlide({ data, isActive }: SlideProps) {
         {/* The Card Snapshot */}
         <div
           ref={cardRef}
-          className="w-full aspect-[4/5] bg-card text-card-foreground p-6 md:p-8 relative rounded-3xl shadow-2xl border border-border overflow-hidden flex flex-col justify-between transform scale-95 md:scale-100"
+          className="w-full aspect-[4/5] bg-card text-card-foreground p-6 md:p-8 pt-5 md:pt-6 relative rounded-3xl shadow-2xl border border-border flex flex-col justify-between scale-95 md:scale-100"
         >
           <BorderBeam duration={8} size={100} />
           {/* Card ambient glow */}
@@ -175,11 +181,22 @@ export default function OutroSlide({ data, isActive }: SlideProps) {
               {data.joinedAt && (
                 <p className="font-sans text-[10px] md:text-xs text-muted-foreground mt-2">
                   Joined{" "}
-                  {Math.floor(
-                    (new Date().getTime() - new Date(data.joinedAt).getTime()) /
-                      (1000 * 60 * 60 * 24)
-                  ).toLocaleString()}{" "}
-                  Days Ago
+                  {(() => {
+                    const totalDays = Math.floor(
+                      (new Date().getTime() -
+                        new Date(data.joinedAt).getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    );
+                    const years = Math.floor(totalDays / 365);
+                    const days = totalDays % 365;
+                    if (years > 0) {
+                      return `${years} Year${
+                        years > 1 ? "s" : ""
+                      }, ${days} Day${days !== 1 ? "s" : ""}`;
+                    }
+                    return `${days} Day${days !== 1 ? "s" : ""}`;
+                  })()}{" "}
+                  Ago
                 </p>
               )}
             </div>
@@ -195,78 +212,102 @@ export default function OutroSlide({ data, isActive }: SlideProps) {
                   {data.totalCommits.toLocaleString()}
                 </p>
               </div>
-              {/* Top-right: Top Lang */}
+              {/* Top-right: Top Language */}
               <div>
                 <p className="font-sans text-[10px] tracking-[0.2em] text-muted-foreground mb-1 uppercase">
-                  Top Lang
+                  Top Language
                 </p>
                 <p className="font-serif italic text-2xl md:text-3xl capitalize">
                   {topLang}
                 </p>
               </div>
-              {/* Bottom-left: Magnum Opus */}
+              {/* Bottom-left: Top Project */}
+
               <div>
                 <p className="font-sans text-[10px] tracking-[0.2em] text-muted-foreground mb-1 uppercase">
-                  Magnum Opus
+                  Top Project
                 </p>
-                <p className="font-sans font-bold text-lg md:text-xl truncate text-foreground">
-                  {data.topRepo ? data.topRepo.name : "Top Secret Project"}
-                </p>
+                <div className="flex flex-col gap-1">
+                  {data.topRepo ? (
+                    <>
+                      <p className="font-serif italic text-xl md:text-2xl truncate text-foreground leading-tight pr-2 -ml-1 pl-1">
+                        {data.topRepo.name}
+                      </p>
+                      {data.topRepo.stars > 0 && (
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/40 px-2 py-1 rounded-full w-fit mt-1">
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          <span className="font-medium">
+                            {data.topRepo.stars.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-2 text-muted-foreground/60">
+                      <Lock className="w-4 h-4" />
+                      <p className="font-serif italic text-lg md:text-xl">
+                        Top Secret
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-              {/* Bottom-right: Contribution Graph */}
+              {/* Bottom-right: Activity */}
               <div>
-                <p className="font-sans text-[10px] tracking-[0.2em] text-muted-foreground mb-1 uppercase">
+                <p className="font-sans text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
                   Activity
                 </p>
                 <div className="flex justify-start opacity-80 hover:opacity-100 transition-opacity">
-                  <ActivityCalendar
-                    data={(() => {
-                      const contributions = data.contributions || [];
-                      // Show last 60 days for compact card view
-                      return contributions.slice(-150).map((day) => ({
-                        date: day.date,
-                        count: day.count,
-                        level:
-                          day.count === 0
-                            ? 0
-                            : day.count < 3
-                            ? 1
-                            : day.count < 6
-                            ? 2
-                            : day.count < 10
-                            ? 3
-                            : 4,
-                      }));
-                    })()}
-                    theme={{
-                      light: [
-                        "#ebedf0",
-                        "#9be9a8",
-                        "#40c463",
-                        "#30a14e",
-                        "#216e39",
-                      ],
-                      dark: [
-                        "#161b22",
-                        "#0e4429",
-                        "#006d32",
-                        "#26a641",
-                        "#39d353",
-                      ], // GitHub dark theme greens
-                    }}
-                    colorScheme={resolvedTheme === "dark" ? "dark" : "light"}
-                    blockSize={4}
-                    blockRadius={1}
-                    blockMargin={2}
-                    fontSize={0}
-                    showWeekdayLabels={false}
-                  />
+                  {mounted && (
+                    <ActivityCalendar
+                      data={(() => {
+                        const contributions = data.contributions || [];
+                        // Show last 60 days for compact card view
+                        return contributions.slice(-150).map((day) => ({
+                          date: day.date,
+                          count: day.count,
+                          level:
+                            day.count === 0
+                              ? 0
+                              : day.count < 3
+                              ? 1
+                              : day.count < 6
+                              ? 2
+                              : day.count < 10
+                              ? 3
+                              : 4,
+                        }));
+                      })()}
+                      theme={{
+                        light: [
+                          "#ebedf0",
+                          "#9be9a8",
+                          "#40c463",
+                          "#30a14e",
+                          "#216e39",
+                        ],
+                        dark: [
+                          "#161b22",
+                          "#0e4429",
+                          "#006d32",
+                          "#26a641",
+                          "#39d353",
+                        ], // GitHub dark theme greens
+                      }}
+                      colorScheme={resolvedTheme === "dark" ? "dark" : "light"}
+                      blockSize={4}
+                      blockRadius={1}
+                      blockMargin={2}
+                      fontSize={0}
+                      showWeekdayLabels={false}
+                    />
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="h-px w-full bg-border mt-auto mb-6" />
+          <div className="h-px w-full bg-border mt-auto my-3!" />
 
           {/* Footer */}
           <div className="flex justify-between items-end">
