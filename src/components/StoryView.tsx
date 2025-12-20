@@ -1,9 +1,9 @@
 "use client";
 
 import { GitStoryData } from "@/types";
-import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
+import { useState, useEffect, useCallback, useMemo, Suspense, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, X, Play, Pause } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useQueryState, parseAsString } from "nuqs";
 import IntroSlide from "./slides/IntroSlide";
@@ -52,7 +52,13 @@ export default function StoryView({ data }: StoryViewProps) {
     parseAsString.withDefault("intro")
   );
   const [isPaused, setIsPaused] = useState(false);
+  const [progress, setProgress] = useState(0); // 0 to 1 progress for current slide
   const router = useRouter();
+
+  // Refs for tracking time
+  const startTimeRef = useRef<number>(0);
+  const elapsedTimeRef = useRef<number>(0);
+  const animationFrameRef = useRef<number>(0);
 
   // Find the current index based on the slide param
   const currentIndex = useMemo(() => {
@@ -89,15 +95,74 @@ export default function StoryView({ data }: StoryViewProps) {
     }
   }, [currentIndex, setCurrentIndex]);
 
+  // Keyboard navigation
   useEffect(() => {
-    if (isPaused) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input field
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
 
-    const timer = setTimeout(() => {
-      nextSlide();
-    }, SLIDE_DURATION);
+      switch (e.key) {
+        case "ArrowRight":
+        case "ArrowDown":
+          e.preventDefault();
+          nextSlide();
+          break;
+        case "ArrowLeft":
+        case "ArrowUp":
+          e.preventDefault();
+          prevSlide();
+          break;
+        case " ": // Space bar
+          e.preventDefault();
+          setIsPaused((prev) => !prev);
+          break;
+      }
+    };
 
-    return () => clearTimeout(timer);
-  }, [currentIndex, isPaused, nextSlide]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [nextSlide, prevSlide]);
+
+  // Reset progress when slide changes
+  useEffect(() => {
+    setProgress(0);
+    elapsedTimeRef.current = 0;
+  }, [currentIndex]);
+
+  // Progress animation with pause/resume support
+  useEffect(() => {
+    if (isPaused) {
+      // When pausing, cancel the animation frame
+      cancelAnimationFrame(animationFrameRef.current);
+      return;
+    }
+
+    // Start or resume the animation
+    startTimeRef.current = performance.now() - elapsedTimeRef.current;
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTimeRef.current;
+      elapsedTimeRef.current = elapsed;
+      const newProgress = Math.min(elapsed / SLIDE_DURATION, 1);
+      setProgress(newProgress);
+
+      if (newProgress < 1) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        // Move to next slide when complete
+        nextSlide();
+      }
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationFrameRef.current);
+  }, [isPaused, currentIndex, nextSlide]);
 
   const CurrentSlideComponent = slides[currentIndex].component;
 
@@ -110,23 +175,16 @@ export default function StoryView({ data }: StoryViewProps) {
             key={slide.id}
             className="flex-1 bg-white/30 rounded-full overflow-hidden h-full"
           >
-            <motion.div
-              key={index === currentIndex ? `${slide.id}-${currentIndex}` : slide.id}
-              className="h-full bg-white"
-              initial={{ width: index < currentIndex ? "100%" : "0%" }}
-              animate={{
+            <div
+              className="h-full bg-white transition-none"
+              style={{
                 width:
                   index < currentIndex
                     ? "100%"
                     : index === currentIndex
-                      ? "100%"
+                      ? `${progress * 100}%`
                       : "0%",
               }}
-              transition={
-                index === currentIndex && !isPaused
-                  ? { duration: SLIDE_DURATION / 1000, ease: "linear" }
-                  : { duration: 0 }
-              }
             />
           </div>
         ))}
@@ -144,19 +202,41 @@ export default function StoryView({ data }: StoryViewProps) {
         <ArrowLeft className="w-4 h-4 mr-1" /> <span className="hidden md:inline">Exit</span>
       </Button>
 
-      {/* Animated Theme Toggle Button */}
-      <Suspense fallback={<Skeleton />}>
-        <AnimatedThemeToggler className="absolute top-8 right-4 z-50" />
-      </Suspense>
+      {/* Top Right Controls */}
+      <div className="absolute top-8 right-4 z-50 flex items-center gap-2">
+        {/* Play/Pause Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="bg-background/20 backdrop-blur-md border-white/10 hover:bg-background/40 cursor-pointer"
+          onClick={() => setIsPaused((prev) => !prev)}
+          aria-label={isPaused ? "Play" : "Pause"}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={isPaused ? "play" : "pause"}
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              {isPaused ? (
+                <Play className="w-4 h-4" />
+              ) : (
+                <Pause className="w-4 h-4" />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </Button>
+
+        {/* Animated Theme Toggle Button */}
+        <Suspense fallback={<Skeleton />}>
+          <AnimatedThemeToggler />
+        </Suspense>
+      </div>
 
       {/* Slide Content */}
-      <div
-        className="w-full h-full"
-        onMouseDown={() => setIsPaused(true)}
-        onMouseUp={() => setIsPaused(false)}
-        onTouchStart={() => setIsPaused(true)}
-        onTouchEnd={() => setIsPaused(false)}
-      >
+      <div className="w-full h-full">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentIndex}

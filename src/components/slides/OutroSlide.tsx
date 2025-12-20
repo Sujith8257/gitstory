@@ -79,11 +79,27 @@ export default function OutroSlide({ data, isActive }: SlideProps) {
         if (cardRef.current && !isDownloading) {
             setIsDownloading(true);
             try {
-                const dataUrl = await toPng(cardRef.current, { cacheBust: true, pixelRatio: 2 });
+                // skipFonts: true fixes Firefox font undefined error in html-to-image v1.11.13
+                const dataUrl = await toPng(cardRef.current, {
+                    cacheBust: true,
+                    pixelRatio: 2,
+                    skipFonts: true
+                });
+
+                // Convert data URL to blob for better cross-browser compatibility
+                const response = await fetch(dataUrl);
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+
                 const link = document.createElement("a");
                 link.download = `gitstory-${data.username}.png`;
-                link.href = dataUrl;
+                link.href = blobUrl;
+                document.body.appendChild(link);
                 link.click();
+                document.body.removeChild(link);
+
+                // Clean up the blob URL
+                URL.revokeObjectURL(blobUrl);
             } catch (err) {
                 console.error("Failed to download image", err);
             } finally {
