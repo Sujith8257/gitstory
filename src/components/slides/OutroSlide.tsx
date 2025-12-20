@@ -146,7 +146,7 @@ ${data.totalCommits.toLocaleString()} commits this year as "${data.archetype}"
 
   const handleCopyLink = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(shareText);
+      await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {

@@ -61,18 +61,21 @@
 ## 🚀 Features
 
 ### 🎬 Story Experience
+
 - **Swipeable Slides** — Navigate through your year like Instagram Stories
 - **Auto-Progress** — Slides advance automatically with a progress bar
 - **Pause on Hold** — Hold to pause and explore details
 - **Smooth Animations** — Powered by Motion (Framer Motion)
 
 ### 📈 Data Insights
+
 - **GitHub API Integration** — Fetches real data from GitHub's REST & GraphQL APIs
 - **Private Repo Support** — Optional GitHub token for richer insights
 - **Smart Caching** — Efficient data fetching with React Query
 - **Contribution Calendar** — Full year activity heatmap
 
 ### 🎨 Visual Design
+
 - **Dark/Light Mode** — Fully themed with animated toggle
 - **Premium UI Components** — 60+ shadcn/ui components
 - **Interactive Globe** — 3D globe visualization on homepage
@@ -80,6 +83,7 @@
 - **Responsive Design** — Works beautifully on mobile and desktop
 
 ### 🔗 Sharing & SEO
+
 - **Dynamic OG Images** — Auto-generated social preview images per user
 - **PWA Ready** — Installable as a Progressive Web App
 - **SEO Optimized** — Full metadata, structured data, and sitemap
@@ -88,18 +92,18 @@
 
 ## 🛠️ Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| **Framework** | [Next.js 16](https://nextjs.org) (App Router) |
-| **Language** | TypeScript |
-| **Styling** | [Tailwind CSS 4](https://tailwindcss.com) |
-| **UI Library** | [shadcn/ui](https://ui.shadcn.com) + [Radix UI](https://radix-ui.com) |
-| **Animations** | [Motion](https://motion.dev) (Framer Motion) |
-| **Charts** | [Recharts](https://recharts.org) |
-| **State** | [React Query](https://tanstack.com/query) (TanStack Query) |
-| **Data Fetching** | GitHub REST API + GraphQL API |
-| **Image Generation** | [@vercel/og](https://vercel.com/docs/functions/og-image-generation) |
-| **Package Manager** | [Bun](https://bun.sh) |
+| Category             | Technology                                                            |
+| -------------------- | --------------------------------------------------------------------- |
+| **Framework**        | [Next.js 16](https://nextjs.org) (App Router)                         |
+| **Language**         | TypeScript                                                            |
+| **Styling**          | [Tailwind CSS 4](https://tailwindcss.com)                             |
+| **UI Library**       | [shadcn/ui](https://ui.shadcn.com) + [Radix UI](https://radix-ui.com) |
+| **Animations**       | [Motion](https://motion.dev) (Framer Motion)                          |
+| **Charts**           | [Recharts](https://recharts.org)                                      |
+| **State**            | [React Query](https://tanstack.com/query) (TanStack Query)            |
+| **Data Fetching**    | GitHub REST API + GraphQL API                                         |
+| **Image Generation** | [@vercel/og](https://vercel.com/docs/functions/og-image-generation)   |
+| **Package Manager**  | [Bun](https://bun.sh)                                                 |
 
 ---
 
@@ -184,12 +188,12 @@ For richer insights including private repositories and higher API rate limits:
 
 ## 📜 Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `bun dev` | Start development server with hot reload |
-| `bun build` | Create optimized production build |
-| `bun start` | Start production server |
-| `bun lint` | Run ESLint for code quality |
+| Script      | Description                              |
+| ----------- | ---------------------------------------- |
+| `bun dev`   | Start development server with hot reload |
+| `bun build` | Create optimized production build        |
+| `bun start` | Start production server                  |
+| `bun lint`  | Run ESLint for code quality              |
 
 ---
 
@@ -206,7 +210,7 @@ export const siteConfig = {
   links: {
     github: "https://github.com/vishkx/gitstory",
   },
-}
+};
 ```
 
 ### Theme Colors
@@ -227,6 +231,7 @@ GitStory is optimized for deployment on **Vercel**:
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vishkx/gitstory)
 
 Also works on:
+
 - Netlify
 - Docker
 - Any Node.js hosting platform
@@ -240,6 +245,7 @@ For platform-specific instructions, see the [Next.js deployment docs](https://ne
 Created and maintained by [vishkx](https://github.com/vishkx).
 
 **Special thanks to:**
+
 - [shadcn/ui](https://ui.shadcn.com) for the beautiful component library
 - [Motion](https://motion.dev) for smooth animations
 - [Recharts](https://recharts.org) for chart components

@@ -23,9 +23,6 @@ export async function generateMetadata({
 
   const baseUrl = siteConfig.url;
 
-  // Build OG image URL with fallback params
-  const ogImageUrl = new URL(`/${githubId}/opengraph-image`, baseUrl);
-
   return {
     title,
     description,
@@ -34,21 +31,12 @@ export async function generateMetadata({
       description,
       url: `${baseUrl}/${githubId}`,
       siteName: "GitStory",
-      images: [
-        {
-          url: ogImageUrl.toString(),
-          width: 1200,
-          height: 630,
-          alt: `${githubId}'s GitStory`,
-        },
-      ],
       type: "profile",
     },
     twitter: {
-      card: "summary_large_image",
+      card: "summary",
       title: `${title} | GitStory`,
       description,
-      images: [ogImageUrl.toString()],
     },
     alternates: {
       canonical: `${baseUrl}/${githubId}`,
