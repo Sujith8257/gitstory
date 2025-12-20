@@ -443,15 +443,15 @@ export default function HomePage() {
         <div className="mt-6 flex justify-center h-[54px]">
           {mounted && (
             <a
-              href="https://www.producthunt.com/products/gitstory-2?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-gitstory-2"
+              href="https://www.producthunt.com/products/gitstory-2?embed=true&utm_source=badge-top-post-badge&utm_medium=badge&utm_campaign=badge-gitstory-2"
               target="_blank"
               rel="noopener noreferrer"
               className="transition-opacity hover:opacity-80"
             >
               <img
-                src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1051707&theme=${resolvedTheme === 'light' ? 'light' : 'dark'}`}
-                alt="Featured on Product Hunt"
-                className="w-[190px] sm:w-[190px] h-auto"
+                src={`https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=1051707&theme=${resolvedTheme === 'light' ? 'light' : 'dark'}&period=daily`}
+                alt="GitStory - Top Post on Product Hunt"
+                className="w-[190px] sm:w-[220px] h-auto"
               // className="w-[200px] sm:w-[250px] h-auto"
               />
             </a>
