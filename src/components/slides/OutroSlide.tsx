@@ -44,9 +44,11 @@ export default function OutroSlide({ data, isActive }: SlideProps) {
   const { resolvedTheme } = useTheme();
 
   const shareUrl = `${siteConfig.url}/${data.username}`;
-  const shareText = `Check out my GitHub Year in Review! 🚀 ${data.totalCommits.toLocaleString()} commits this year as "${
-    data.archetype
-  }" #GitStory #GitHub`;
+  const shareText = `Check out my GitHub Year in Review! 🚀
+
+${data.totalCommits.toLocaleString()} commits this year as "${data.archetype}"
+
+#GitStory #GitHub`;
 
   // Track when component has mounted to prevent hydration mismatch
   useEffect(() => {
@@ -144,13 +146,13 @@ export default function OutroSlide({ data, isActive }: SlideProps) {
 
   const handleCopyLink = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(shareText);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy link", err);
     }
-  }, [shareUrl]);
+  }, [shareText]);
 
   const handleShare = useCallback(
     (platform: string) => {
@@ -498,7 +500,7 @@ export default function OutroSlide({ data, isActive }: SlideProps) {
                 ) : (
                   <Copy className="size-4" />
                 )}
-                {copied ? "Copied!" : "Copy Link"}
+                {copied ? "Copied!" : "Copy"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
