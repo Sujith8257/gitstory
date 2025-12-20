@@ -78,10 +78,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/icon-512.png",
-        width: 512,
-        height: 512,
-        alt: "GitStory Logo",
+        url: "/image.png",
+        width: 1200,
+        height: 630,
+        alt: "GitStory — Your Code in Cinema",
       },
     ],
   },
@@ -91,7 +91,7 @@ export const metadata: Metadata = {
     description:
       "Every commit tells a story. Transform your GitHub journey into a cinematic masterpiece.",
     creator: "@gitstory",
-    images: ["/icon-512.png"],
+    images: ["/image.png"],
   },
   robots: {
     index: true,
