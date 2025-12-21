@@ -1,50 +1,39 @@
 "use client";
 
 import { Icons } from "@/components/custom/icons";
-import { motion, AnimatePresence } from "motion/react";
-import {
-  Key,
-  ChevronUp,
-  ChevronDown,
-  Loader2,
-  CheckCircle2,
-  XCircle,
-  Lock,
-  RefreshCw,
-  AlertCircle,
-  Play,
-  ArrowBigRight,
-  Wand,
-  CheckIcon,
-  Trash2,
-  ExternalLink,
-} from "lucide-react";
-import { startTransition, useEffect, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { fetchUserStory } from "@/services/githubService";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import ShadTooltip from "@/components/custom/shad-tooltip";
-import { Badge } from "@/components/ui/badge";
-import { GitStoryData } from "@/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import RightSection from "@/components/RightSection";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Field, FieldGroup } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  AlertCircle,
+  CheckIcon,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Key,
+  Loader2,
+  Lock,
+  Trash2,
+  Wand,
+  XCircle,
+} from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function HomePage() {
   const router = useRouter();
   const isMobile = useIsMobile();
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [username, setUsername] = useState("");
   const [token, setToken] = useState("");
   const [showTokenInput, setShowTokenInput] = useState(false);
-  const [storyData, setStoryData] = useState<GitStoryData | null>(null);
-  const [showStory, setShowStory] = useState(false);
   const [error, setError] = useState<{
     message: string;
     type: "rate_limit" | "not_found" | "auth" | "generic";
@@ -58,11 +47,6 @@ export default function HomePage() {
     login: string;
     avatar_url: string;
   } | null>(null);
-
-  // Set mounted state after hydration
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Validate token when it changes
   useEffect(() => {
@@ -98,51 +82,14 @@ export default function HomePage() {
     return () => clearTimeout(debounce);
   }, [token, username]);
 
-  const { mutate: mutateFetchUserStory, isPending } = useMutation({
-    mutationFn: async () => {
-      setError(null);
-      try {
-        const data = await fetchUserStory(
-          username.trim(),
-          token.trim() || undefined
-        );
-        setStoryData(data);
-        setShowStory(true);
-      } catch (err: unknown) {
-        console.error(err);
-
-        // Parse error type for better UX
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to generate story.";
-        let errorType: "rate_limit" | "not_found" | "auth" | "generic" =
-          "generic";
-
-        if (errorMessage.toLowerCase().includes("rate limit")) {
-          errorType = "rate_limit";
-        } else if (errorMessage.toLowerCase().includes("not found")) {
-          errorType = "not_found";
-        } else if (
-          errorMessage.toLowerCase().includes("token") ||
-          errorMessage.toLowerCase().includes("401")
-        ) {
-          errorType = "auth";
-        }
-
-        setError({ message: errorMessage, type: errorType });
-      }
-    },
-  });
-
-  const isLoading = isPending;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username) return;
 
     // Optional: Pass token via query param if it exists (simplest for now)
     // Ideally we'd store this in a context or cookie, but for this prototype query param is fine
-    // Or just rely on public API if no token. 
-    // SECURITY WARNING: Putting token in URL is not secure for production. 
+    // Or just rely on public API if no token.
+    // SECURITY WARNING: Putting token in URL is not secure for production.
     // Using a more persistent store in a real app would be better.
     // For this 'fun' app, we'll strip it if we can or just use it.
 
@@ -159,9 +106,7 @@ export default function HomePage() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div
-        className="w-full max-w-md mx-auto"
-      >
+      <div className="w-full max-w-md mx-auto">
         <div className="text-center mb-12">
           {/* <Github size={64} className="mx-auto mb-6 text-white" /> */}
           <Icons.gitHub className="size-16! mx-auto mb-6" />
@@ -212,9 +157,10 @@ export default function HomePage() {
                     </span>
                   </div>
                 ) : (
-                  `Add GitHub Token (Recommended${isMobile ? "" : " for richer insights"})`
+                  `Add GitHub Token (Recommended${
+                    isMobile ? "" : " for richer insights"
+                  })`
                 )}{" "}
-
                 {showTokenInput ? (
                   <ChevronUp size={12} />
                 ) : (
@@ -344,7 +290,9 @@ export default function HomePage() {
                           <Lock size={12} className="shrink-0" />
                           <span>Stored in browser.</span>
                         </div>
-                        <span className="hidden sm:inline text-muted-foreground/20">|</span>
+                        <span className="hidden sm:inline text-muted-foreground/20">
+                          |
+                        </span>
                         <span>
                           Enables private/org repos, 5K calls/hr.{" "}
                           <a
@@ -366,19 +314,11 @@ export default function HomePage() {
             <Button
               type="submit"
               size="lg"
-              disabled={isLoading || !username.trim()}
+              disabled={!username.trim()}
               className="w-full px-6! py-6! font-semibold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
             >
-              {isLoading ? (
-                <>
-                  <Loader2 className="animate-spin size-6" /> Generating...
-                </>
-              ) : (
-                <>
-                  Generate Story{" "}
-                  <Wand className="size-4 group-hover:rotate-5 transition-transform" />
-                </>
-              )}
+              Generate Story{" "}
+              <Wand className="size-4 group-hover:rotate-5 transition-transform" />
             </Button>
 
             {/* Enhanced Error Display */}
@@ -441,21 +381,21 @@ export default function HomePage() {
 
         {/* Product Hunt Badge */}
         <div className="mt-6 flex justify-center h-[54px]">
-          {mounted && (
-            <a
-              href="https://www.producthunt.com/products/gitstory-2?embed=true&utm_source=badge-top-post-badge&utm_medium=badge&utm_campaign=badge-gitstory-2"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-opacity hover:opacity-80"
-            >
-              <img
-                src={`https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=1051707&theme=${resolvedTheme === 'light' ? 'light' : 'dark'}&period=daily`}
-                alt="GitStory - Top Post on Product Hunt"
-                className="w-[190px] sm:w-[220px] h-auto"
+          <a
+            href="https://www.producthunt.com/products/gitstory-2?embed=true&utm_source=badge-top-post-badge&utm_medium=badge&utm_campaign=badge-gitstory-2"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-opacity hover:opacity-80"
+          >
+            <img
+              src={`https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=1051707&theme=${
+                resolvedTheme === "light" ? "light" : "dark"
+              }&period=daily`}
+              alt="GitStory - Top Post on Product Hunt"
+              className="w-[190px] sm:w-[220px] h-auto"
               // className="w-[200px] sm:w-[250px] h-auto"
-              />
-            </a>
-          )}
+            />
+          </a>
         </div>
       </div>
       <div className="hidden lg:block relative w-full aspect-square">
