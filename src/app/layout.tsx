@@ -105,14 +105,22 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    // Add your verification codes here
-    // google: 'your-google-verification-code',
-    // yandex: 'your-yandex-verification-code',
+    google: "pLQiDkNt40f8CxPzEfB-2wv2w61jqZOj3VTrJCQL6x4",
   },
   alternates: {
     canonical: siteConfig.url,
   },
   category: "technology",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.svg", type: "image/svg+xml" }],
+    other: [{ rel: "mask-icon", url: "/icon.svg", color: "#000000" }],
+  },
 };
 
 // Structured data for rich search results
