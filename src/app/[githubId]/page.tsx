@@ -1,4 +1,5 @@
 import { fetchUserStory } from "@/services/githubService";
+import { fetchGitLabUserStory } from "@/services/gitlabService";
 import StoryView from "@/components/StoryView";
 import { GitStoryData } from "@/types";
 import { notFound } from "next/navigation";
@@ -48,16 +49,25 @@ export async function generateMetadata({
 export default async function StoryPage({ params }: PageProps) {
   const { githubId } = await params;
 
-  // Read OAuth token from HTTP-only cookie
+  // Read OAuth token and provider from HTTP-only cookies
   const cookieStore = await cookies();
   const token = cookieStore.get("gitstory_token")?.value;
+  const provider = cookieStore.get("gitstory_provider")?.value as
+    | "github"
+    | "gitlab"
+    | undefined;
 
-  // Fetch data on the server side
+  // Fetch data on the server side using the appropriate service
   let storyData: GitStoryData | null = null;
   let error = null;
 
   try {
-    storyData = await fetchUserStory(githubId, token);
+    // Use GitLab service if provider is gitlab, otherwise default to GitHub
+    if (provider === "gitlab") {
+      storyData = await fetchGitLabUserStory(githubId, token);
+    } else {
+      storyData = await fetchUserStory(githubId, token);
+    }
   } catch (e) {
     console.error("Failed to fetch story data", e);
     error = e instanceof Error ? e.message : "Failed to load story";
@@ -69,7 +79,7 @@ export default async function StoryPage({ params }: PageProps) {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4 text-center">
+      <div className="fixed inset-0 flex items-center justify-center p-4 text-center bg-black">
         <h1 className="text-2xl font-bold text-red-500 mb-4">
           Story couldn&apos;t be written
         </h1>

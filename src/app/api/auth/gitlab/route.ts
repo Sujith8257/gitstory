@@ -1,27 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const clientId = process.env.GITHUB_CLIENT_ID;
+  const clientId = process.env.GITLAB_CLIENT_ID;
 
   if (!clientId) {
     return NextResponse.json(
-      { error: "GitHub OAuth not configured" },
+      { error: "GitLab OAuth not configured" },
       { status: 500 }
     );
   }
 
   // Generate a random state for CSRF protection
-  // Prefix with 'github_' to identify the provider in callback
-  const state = `github_${crypto.randomUUID()}`;
+  // Prefix with 'gitlab_' to identify the provider in callback
+  const state = `gitlab_${crypto.randomUUID()}`;
 
-  // GitHub OAuth scopes needed for GitStory
-  const scopes = ["repo", "read:org", "read:user"].join(" ");
+  // GitLab OAuth scopes needed for GitStory
+  const scopes = ["read_user", "read_api", "read_repository"].join(" ");
 
-  // Build the GitHub authorization URL
-  const authUrl = new URL("https://github.com/login/oauth/authorize");
+  // Build the GitLab authorization URL
+  const authUrl = new URL("https://gitlab.com/oauth/authorize");
   authUrl.searchParams.set("client_id", clientId);
   authUrl.searchParams.set("scope", scopes);
   authUrl.searchParams.set("state", state);
+  authUrl.searchParams.set("response_type", "code");
   authUrl.searchParams.set(
     "redirect_uri",
     `${process.env.NEXTAUTH_URL || request.nextUrl.origin}/api/auth/callback`

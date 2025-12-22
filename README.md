@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  Transform your GitHub journey into a cinematic masterpiece with stunning visuals, personalized insights, and sharable snapshots.
+  Transform your GitHub or GitLab journey into a cinematic masterpiece with stunning visuals, personalized insights, and sharable snapshots.
 </p>
 
 <p align="center">
@@ -41,7 +41,7 @@
 
 ## ✨ What is GitStory?
 
-**GitStory** is a beautiful, Instagram Stories-style web app that transforms any GitHub user's yearly activity into a cinematic, swipeable experience. Enter a GitHub username and watch your coding journey come alive through stunning animated slides showcasing:
+**GitStory** is a beautiful, Instagram Stories-style web app that transforms any GitHub or GitLab user's yearly activity into a cinematic, swipeable experience. Enter a username and watch your coding journey come alive through stunning animated slides showcasing:
 
 - 📊 **Contribution Stats** — Total commits, longest streaks, busiest days
 - 🔥 **Code Velocity** — Interactive charts showing commit frequency over time
@@ -69,8 +69,11 @@
 
 ### 📈 Data Insights
 
+- **Multi-Platform Support** — Works with both GitHub and GitLab
+- **OAuth Authentication** — Securely connect your account with one click
 - **GitHub API Integration** — Fetches real data from GitHub's REST & GraphQL APIs
-- **Private Repo Support** — Optional GitHub token for richer insights
+- **GitLab API Integration** — Full support for GitLab REST API
+- **Private Repo Support** — Connect your account for richer insights
 - **Smart Caching** — Efficient data fetching with React Query
 - **Contribution Calendar** — Full year activity heatmap
 
@@ -101,7 +104,7 @@
 | **Animations**       | [Motion](https://motion.dev) (Framer Motion)                          |
 | **Charts**           | [Recharts](https://recharts.org)                                      |
 | **State**            | [React Query](https://tanstack.com/query) (TanStack Query)            |
-| **Data Fetching**    | GitHub REST API + GraphQL API                                         |
+| **Data Fetching**    | GitHub REST/GraphQL API + GitLab REST API                             |
 | **Image Generation** | [@vercel/og](https://vercel.com/docs/functions/og-image-generation)   |
 | **Package Manager**  | [Bun](https://bun.sh)                                                 |
 
@@ -139,9 +142,11 @@ src/
 │   └── custom/             # Custom components (icons, theme toggle)
 ├── services/
 │   ├── githubService.ts    # GitHub API integration
+│   ├── gitlabService.ts    # GitLab API integration
 │   └── scoringAlgorithms.ts # Archetype & scoring logic
+├── contexts/
+│   └── auth-context.tsx    # Authentication state management
 ├── context/
-│   └── providers.tsx       # React providers (Theme, React Query)
 ├── hooks/
 │   └── use-mobile.ts       # Mobile detection hook
 ├── lib/
@@ -176,13 +181,23 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Using a GitHub Token (Recommended)
+### Authentication (Recommended)
 
-For richer insights including private repositories and higher API rate limits:
+For richer insights including private repositories and higher API rate limits, connect your account:
 
-1. [Create a Personal Access Token](https://github.com/settings/tokens/new?scopes=repo,read:org,read:user&description=GitStory)
-2. Enter the token in the app when prompted
-3. Token is stored locally in your browser — never sent to any server
+#### GitHub OAuth
+
+1. Click "GitHub" on the homepage
+2. Authorize GitStory on GitHub
+3. Your account is now connected!
+
+#### GitLab OAuth
+
+1. Click "GitLab" on the homepage
+2. Authorize GitStory on GitLab
+3. Your account is now connected!
+
+> **Note**: Tokens are stored securely in HTTP-only cookies and never exposed to client-side JavaScript.
 
 ---
 

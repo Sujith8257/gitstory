@@ -2,38 +2,88 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   const token = request.cookies.get("gitstory_token")?.value;
+  const provider = request.cookies.get("gitstory_provider")?.value as
+    | "github"
+    | "gitlab"
+    | undefined;
 
-  if (!token) {
-    return NextResponse.json({ user: null, authenticated: false });
+  if (!token || !provider) {
+    return NextResponse.json({
+      user: null,
+      authenticated: false,
+      provider: null,
+    });
   }
 
   try {
-    // Fetch user info from GitHub
-    const response = await fetch("https://api.github.com/user", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/vnd.github.v3+json",
-      },
-    });
+    let user;
 
-    if (!response.ok) {
-      // Token is invalid or expired
-      return NextResponse.json({ user: null, authenticated: false });
+    if (provider === "github") {
+      // Fetch user info from GitHub
+      const response = await fetch("https://api.github.com/user", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      });
+
+      if (!response.ok) {
+        return NextResponse.json({
+          user: null,
+          authenticated: false,
+          provider: null,
+        });
+      }
+
+      const data = await response.json();
+      user = {
+        login: data.login,
+        avatar_url: data.avatar_url,
+        name: data.name,
+        id: data.id,
+      };
+    } else if (provider === "gitlab") {
+      // Fetch user info from GitLab
+      const response = await fetch("https://gitlab.com/api/v4/user", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        return NextResponse.json({
+          user: null,
+          authenticated: false,
+          provider: null,
+        });
+      }
+
+      const data = await response.json();
+      user = {
+        login: data.username,
+        avatar_url: data.avatar_url,
+        name: data.name,
+        id: data.id,
+      };
+    } else {
+      return NextResponse.json({
+        user: null,
+        authenticated: false,
+        provider: null,
+      });
     }
 
-    const user = await response.json();
-
     return NextResponse.json({
-      user: {
-        login: user.login,
-        avatar_url: user.avatar_url,
-        name: user.name,
-        id: user.id,
-      },
+      user,
       authenticated: true,
+      provider,
     });
   } catch (error) {
     console.error("Error fetching user:", error);
-    return NextResponse.json({ user: null, authenticated: false });
+    return NextResponse.json({
+      user: null,
+      authenticated: false,
+      provider: null,
+    });
   }
 }

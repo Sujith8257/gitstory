@@ -16,8 +16,11 @@ interface AuthUser {
   id: number;
 }
 
+type Provider = "github" | "gitlab";
+
 interface AuthContextType {
   user: AuthUser | null;
+  provider: Provider | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   logout: () => Promise<void>;
@@ -28,6 +31,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [provider, setProvider] = useState<Provider | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUser = useCallback(async () => {
@@ -37,12 +41,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (data.authenticated && data.user) {
         setUser(data.user);
+        setProvider(data.provider || null);
       } else {
         setUser(null);
+        setProvider(null);
       }
     } catch (error) {
       console.error("Error fetching auth status:", error);
       setUser(null);
+      setProvider(null);
     } finally {
       setIsLoading(false);
     }
@@ -56,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       setUser(null);
+      setProvider(null);
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -70,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        provider,
         isLoading,
         isAuthenticated: !!user,
         logout,

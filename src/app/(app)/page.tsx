@@ -8,17 +8,25 @@ import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/auth-context";
-import { LogOut, Loader2, Wand, Link as LinkIcon } from "lucide-react";
+import { LogOut, Loader2, Wand } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HomePage() {
   const router = useRouter();
   const isMobile = useIsMobile();
   const { resolvedTheme } = useTheme();
-  const { user, isLoading: authLoading, isAuthenticated, logout } = useAuth();
+  const {
+    user,
+    provider,
+    isLoading: authLoading,
+    isAuthenticated,
+    logout,
+  } = useAuth();
   const [username, setUsername] = useState("");
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState<{
@@ -51,9 +59,22 @@ export default function HomePage() {
     window.location.href = "/api/auth/github";
   };
 
+  const handleConnectGitLab = () => {
+    // Redirect to GitLab OAuth initiation endpoint
+    window.location.href = "/api/auth/gitlab";
+  };
+
   const handleDisconnect = async () => {
     await logout();
     setUsername("");
+  };
+
+  // Get provider display info
+  const getProviderInfo = () => {
+    if (provider === "gitlab") {
+      return { name: "GitLab", Icon: Icons.gitLab };
+    }
+    return { name: "GitHub", Icon: Icons.gitHub };
   };
 
   return (
@@ -79,7 +100,11 @@ export default function HomePage() {
                   setUsername(e.target.value);
                   if (error) setError(null);
                 }}
-                placeholder="Enter GitHub username"
+                placeholder={
+                  isAuthenticated && provider === "gitlab"
+                    ? "Enter GitLab username"
+                    : "Enter GitHub username"
+                }
                 className="px-6 py-6 text-lg! font-mono text-center placeholder:text-muted-foreground/70"
                 autoFocus={!isAuthenticated}
                 disabled={isAuthenticated}
@@ -96,10 +121,14 @@ export default function HomePage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="flex items-center justify-center gap-2 py-3 text-muted-foreground text-sm"
+                    className="flex items-center justify-between gap-3"
                   >
-                    <Loader2 size={16} className="animate-spin" />
-                    <span>Checking authentication...</span>
+                    <div className="flex items-center justify-evenly gap-2">
+                      <Skeleton className="h-8 w-24 rounded-full" />
+                      <Skeleton className="h-8 w-24 rounded-full" />
+                    </div>
+                    <Separator orientation="vertical" className="my-1" />
+                    <Skeleton className="h-3 w-32" />
                   </motion.div>
                 ) : isAuthenticated && user ? (
                   <motion.div
@@ -116,7 +145,8 @@ export default function HomePage() {
                       </AvatarFallback>
                     </Avatar>
                     <span className="flex-1">
-                      Connected as <strong>@{user.login}</strong>
+                      Connected to <strong>{getProviderInfo().name}</strong> as{" "}
+                      <strong>@{user.login}</strong>
                     </span>
                     <Button
                       type="button"
@@ -135,20 +165,31 @@ export default function HomePage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="flex items-center justify-between gap-2"
+                    className="flex items-center justify-between gap-3"
                   >
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={handleConnectGitHub}
-                      className="gap-2 rounded-full"
-                    >
-                      <Icons.gitHub className="size-3.5" />
-                      Connect with GitHub
-                    </Button>
+                    <div className="flex items-center justify-evenly gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleConnectGitHub}
+                        className="gap-2 rounded-full px-6"
+                      >
+                        <Icons.gitHub className="size-3.5" />
+                        GitHub
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleConnectGitLab}
+                        className="gap-2 rounded-full px-6"
+                      >
+                        <Icons.gitLab className="size-3.5" />
+                        GitLab
+                      </Button>
+                    </div>
+                    <Separator orientation="vertical" className="my-1" />
                     <p className="text-center text-xs text-muted-foreground/60">
-                      Private repos & higher API limits
+                      Private repos & higher limits
                     </p>
                   </motion.div>
                 )}
