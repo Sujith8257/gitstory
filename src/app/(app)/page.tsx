@@ -246,6 +246,20 @@ export default function HomePage() {
               className="w-[150px] sm:w-[180px] h-auto"
             />
           </a>
+          <a
+            href="https://startupfa.me/s/gitstory-1?utm_source=gitstory.sitestash.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-opacity hover:opacity-80"
+          >
+            <img
+              src="https://startupfa.me/badges/featured-badge.webp"
+              alt="GitStory - Featured on Startup Fame"
+              width="171"
+              height="54"
+              className="w-[140px] sm:w-[171px] h-auto"
+            />
+          </a>
         </div>
       </div>
       <div className="hidden lg:block relative w-full aspect-square">
