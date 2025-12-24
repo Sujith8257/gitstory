@@ -283,6 +283,22 @@ export default function HomePage() {
                 className="w-[120px] sm:w-[150px] h-auto"
               />
             </a>
+            <a
+              href="https://wired.business"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-opacity hover:opacity-80"
+            >
+              <img
+                src={`https://wired.business/badge0-${
+                  mounted && resolvedTheme === "light" ? "light" : "dark"
+                }.svg`}
+                alt="Featured on Wired Business"
+                width="200"
+                height="54"
+                className="w-[150px] sm:w-[180px] h-auto"
+              />
+            </a>
           </div>
         </div>
       </div>
