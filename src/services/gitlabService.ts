@@ -12,6 +12,8 @@ import {
   calculateRepoScore,
   calculateArchetype,
   calculateProductivity,
+  calculateBadges,
+  calculateGrade,
 } from "@/services/scoringAlgorithms";
 
 const GITLAB_API_BASE = "https://gitlab.com/api/v4";
@@ -439,23 +441,23 @@ export const fetchGitLabUserStory = async (
     // Build top repo
     const topRepo: Repository = bestProject
       ? {
-          name: bestProject.name,
-          description:
-            bestProject.description ||
-            "A project that speaks through its code.",
-          stars: bestProject.star_count,
-          language: bestProject.topics?.[0] || "Unknown",
-          topics: bestProject.topics || [],
-          url: bestProject.web_url,
-        }
+        name: bestProject.name,
+        description:
+          bestProject.description ||
+          "A project that speaks through its code.",
+        stars: bestProject.star_count,
+        language: bestProject.topics?.[0] || "Unknown",
+        topics: bestProject.topics || [],
+        url: bestProject.web_url,
+      }
       : {
-          name: "No Public Repos",
-          description: "Start coding to write history.",
-          stars: 0,
-          language: "N/A",
-          topics: [],
-          url: "",
-        };
+        name: "No Public Repos",
+        description: "Start coding to write history.",
+        stars: 0,
+        language: "N/A",
+        topics: [],
+        url: "",
+      };
 
     // Build top 5 repos
     const topRepos: Repository[] = topCandidates.map((c) => ({
@@ -482,6 +484,19 @@ export const fetchGitLabUserStory = async (
       following: user.following || 0,
       publicRepos: projects.length,
       totalStars: totalStars,
+      badges: calculateBadges(
+        contributionBreakdown,
+        {
+          followers: user.followers || 0,
+          following: user.following || 0,
+          publicRepos: projects.length,
+          totalStars: totalStars,
+          badges: 0, // Will be calculated
+        },
+        totalCommits,
+        maxStreak,
+        projects.length
+      ),
     };
 
     // 8. Calculate archetype
@@ -491,6 +506,15 @@ export const fetchGitLabUserStory = async (
       totalCommits,
       productivity,
       weekdayStats
+    );
+
+    // Calculate grade
+    const grade = calculateGrade(
+      contributionBreakdown,
+      communityStats,
+      totalCommits,
+      maxStreak,
+      projects.length
     );
 
     return {
@@ -512,6 +536,7 @@ export const fetchGitLabUserStory = async (
       contributions,
       joinedAt: user.created_at,
       platform: "gitlab",
+      grade,
     };
   } catch (error) {
     console.error("Error generating GitLab story:", error);

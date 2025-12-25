@@ -12,11 +12,90 @@ import {
   calculateRepoScore,
   calculateArchetype,
   calculateProductivity,
+  calculateBadges,
+  calculateGrade,
 } from "@/services/scoringAlgorithms";
 
 const GITHUB_API_BASE = "https://api.github.com";
 // Third-party API to get contribution graph
 const CONTRIB_API = "https://github-contributions-api.jogruber.de/v4";
+
+/**
+ * Fetch GitHub Achievements count from user profile page
+ * Since GitHub doesn't have an API for achievements, we parse the profile HTML
+ */
+const fetchGitHubAchievementsCount = async (
+  username: string
+): Promise<number> => {
+  try {
+    // Fetch the user's profile page
+    const profileUrl = `https://github.com/${username}`;
+    const response = await fetch(profileUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; GitStory/1.0)',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      },
+    });
+
+    if (!response.ok) {
+      console.warn(`Failed to fetch profile page for ${username}`);
+      return 0;
+    }
+
+    const html = await response.text();
+    
+    // Parse achievements count from the profile page
+    // GitHub achievements are displayed as SVG badges with specific URLs
+    // The most reliable method is to count the badge image URLs
+    
+    // Pattern 1: Count GitHub achievement badge images (most reliable)
+    // GitHub uses: github.githubassets.com/images/modules/profile/badges/
+    const badgeUrlPattern = /github\.githubassets\.com\/images\/modules\/profile\/badges\/[^"'\s)]+/g;
+    const badgeUrls = html.match(badgeUrlPattern);
+    if (badgeUrls) {
+      // Remove duplicates by converting to Set
+      const uniqueBadges = new Set(badgeUrls);
+      return uniqueBadges.size;
+    }
+    
+    // Pattern 2: Look for achievements section with specific data attributes
+    // GitHub may use: data-testid="achievement" or similar
+    const achievementDataMatches = html.match(/data-testid="achievement"|data-achievement="[^"]*"/gi);
+    if (achievementDataMatches) {
+      return achievementDataMatches.length;
+    }
+    
+    // Pattern 3: Look for achievement badge containers
+    // GitHub uses specific classes for achievement badges
+    const achievementContainerPattern = /<div[^>]*class="[^"]*achievement[^"]*"[^>]*>/gi;
+    const containers = html.match(achievementContainerPattern);
+    if (containers) {
+      return containers.length;
+    }
+    
+    // Pattern 4: Look for SVG elements with achievement-related attributes
+    const svgAchievementPattern = /<svg[^>]*class="[^"]*achievement[^"]*"[^>]*>/gi;
+    const svgAchievements = html.match(svgAchievementPattern);
+    if (svgAchievements) {
+      return svgAchievements.length;
+    }
+    
+    // Pattern 5: Fallback - look for "achievements" text with nearby numbers
+    const achievementsTextPattern = /achievements?[^<]*(\d+)/i;
+    const textMatch = html.match(achievementsTextPattern);
+    if (textMatch) {
+      const count = parseInt(textMatch[1], 10);
+      if (!isNaN(count) && count > 0 && count < 100) { // Sanity check
+        return count;
+      }
+    }
+    
+    return 0;
+  } catch (error) {
+    console.warn(`Error fetching achievements for ${username}:`, error);
+    return 0;
+  }
+};
 
 // Fetch contributions + stats using GitHub GraphQL API (includes private contributions when authenticated)
 // This single call replaces: contributions API + 3 separate search API calls = saves 3 API calls!
@@ -187,13 +266,16 @@ export const fetchUserStory = async (
     const contributionsPromise: Promise<ContribData> = token
       ? fetchContributionsWithGraphQL(username, headers)
       : fetch(`${CONTRIB_API}/${username}?y=2025`).then((res) =>
-          res.ok ? res.json() : { contributions: [], total: {} }
-        );
+        res.ok ? res.json() : { contributions: [], total: {} }
+      );
 
     // Use authenticated endpoint for full repo access (includes org repos) when token is provided
     const reposEndpoint = token
       ? `${GITHUB_API_BASE}/user/repos?per_page=100&sort=pushed&affiliation=owner,collaborator,organization_member&visibility=all`
       : `${GITHUB_API_BASE}/users/${username}/repos?per_page=100&sort=pushed&type=all`;
+
+    // Fetch achievements count from profile page (non-blocking, runs in parallel)
+    const achievementsPromise = fetchGitHubAchievementsCount(username);
 
     const [
       reposRes,
@@ -493,22 +575,22 @@ export const fetchUserStory = async (
 
     const topRepo: Repository = bestRepo
       ? {
-          name: bestRepo.name,
-          description:
-            bestRepo.description || "A project that speaks through its code.",
-          stars: bestRepo.stargazers_count,
-          language: bestRepo.language || "Unknown",
-          topics: bestRepo.topics || [],
-          url: bestRepo.html_url,
-        }
+        name: bestRepo.name,
+        description:
+          bestRepo.description || "A project that speaks through its code.",
+        stars: bestRepo.stargazers_count,
+        language: bestRepo.language || "Unknown",
+        topics: bestRepo.topics || [],
+        url: bestRepo.html_url,
+      }
       : {
-          name: "No Public Repos",
-          description: "Start coding to write history.",
-          stars: 0,
-          language: "N/A",
-          topics: [],
-          url: "",
-        };
+        name: "No Public Repos",
+        description: "Start coding to write history.",
+        stars: 0,
+        language: "N/A",
+        topics: [],
+        url: "",
+      };
 
     // Build top 5 repos array
     const topRepos: Repository[] = topCandidates.slice(0, 5).map((c) => ({
@@ -524,12 +606,28 @@ export const fetchUserStory = async (
     // D. Productivity
     const productivity = calculateProductivity(hourCounts);
 
+    // E. Get achievements count from profile (wait for it to complete)
+    const achievementsCount = await achievementsPromise;
+
     // E. Community Stats
     const communityStats: CommunityStats = {
       followers: user.followers,
       following: user.following,
       publicRepos: user.public_repos,
       totalStars: totalStars,
+      badges: achievementsCount > 0 ? achievementsCount : calculateBadges(
+        contributionBreakdown,
+        {
+          followers: user.followers,
+          following: user.following,
+          publicRepos: user.public_repos,
+          totalStars: totalStars,
+          badges: 0, // Will be calculated
+        },
+        totalCommits,
+        maxStreak,
+        user.public_repos
+      ),
     };
 
     // F. Final Archetype
@@ -539,6 +637,15 @@ export const fetchUserStory = async (
       totalCommits,
       productivity,
       weekdayStats
+    );
+
+    // Calculate grade
+    const grade = calculateGrade(
+      contributionBreakdown,
+      communityStats,
+      totalCommits,
+      maxStreak,
+      user.public_repos
     );
 
     return {
@@ -560,6 +667,7 @@ export const fetchUserStory = async (
       contributions: yearData,
       joinedAt: user.created_at,
       platform: "github",
+      grade,
     };
   } catch (error) {
     console.error("Error generating story:", error);

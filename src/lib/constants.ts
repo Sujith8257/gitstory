@@ -5,29 +5,29 @@ export const SLIDE_DURATION_MS = 6000; // 6 seconds per slide
 const generateYearlyData = () => {
   const data = [];
   const startDate = new Date('2025-01-01');
-  
+
   for (let i = 0; i < 365; i++) {
     const currentDate = new Date(startDate);
     currentDate.setDate(startDate.getDate() + i);
-    
+
     const dayOfWeek = currentDate.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    
+
     let commitCount = 0;
-    
+
     // Simulate realistic commit patterns
     if (isWeekend) {
-       // Lower chance of commits on weekends
-       commitCount = Math.random() > 0.8 ? Math.floor(Math.random() * 8) + 1 : 0;
+      // Lower chance of commits on weekends
+      commitCount = Math.random() > 0.8 ? Math.floor(Math.random() * 8) + 1 : 0;
     } else {
-       // Regular weekday activity
-       if (Math.random() > 0.15) {
-         commitCount = Math.floor(Math.random() * 15) + 3; 
-       }
-       // Occasional "crunch time" spikes
-       if (Math.random() > 0.96) {
-         commitCount += Math.floor(Math.random() * 40) + 15;
-       }
+      // Regular weekday activity
+      if (Math.random() > 0.15) {
+        commitCount = Math.floor(Math.random() * 15) + 3;
+      }
+      // Occasional "crunch time" spikes
+      if (Math.random() > 0.96) {
+        commitCount += Math.floor(Math.random() * 40) + 15;
+      }
     }
 
     data.push({
@@ -47,17 +47,17 @@ let maxStreak = 0;
 const weekdayStats = [0, 0, 0, 0, 0, 0, 0];
 
 velocityData.forEach((day, index) => {
-    // Reconstruct date roughly for mock
-    const date = new Date('2025-01-01');
-    date.setDate(date.getDate() + index);
-    
-    if (day.commits > 0) {
-        weekdayStats[date.getDay()] += day.commits;
-        currentStreak++;
-        if (currentStreak > maxStreak) maxStreak = currentStreak;
-    } else {
-        currentStreak = 0;
-    }
+  // Reconstruct date roughly for mock
+  const date = new Date('2025-01-01');
+  date.setDate(date.getDate() + index);
+
+  if (day.commits > 0) {
+    weekdayStats[date.getDay()] += day.commits;
+    currentStreak++;
+    if (currentStreak > maxStreak) maxStreak = currentStreak;
+  } else {
+    currentStreak = 0;
+  }
 });
 
 export const MOCK_DATA: GitStoryData = {
@@ -139,8 +139,10 @@ export const MOCK_DATA: GitStoryData = {
     followers: 1204,
     following: 85,
     totalStars: 4500,
-    publicRepos: 42
+    publicRepos: 42,
+    badges: 3
   },
+  grade: "A+",
   // Generate contributions in the correct format for ActivityCalendar
   contributions: (() => {
     const contribs = [];
