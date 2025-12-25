@@ -16,7 +16,7 @@ export default function Credits() {
 
 This project was inspired by **GitStory**, created by **Pankaj Kumar**.
 
-While this implementation was rebuilt independently, the original idea and core concept were inspired by his work.
+While this implementation was built independently from scratch, parts of the idea and direction were inspired by his work.
 
 Check out the [original project](https://gitstory.pankajk.tech/) and the [repository](https://github.com/pankajkumardev/gitstory-2025).
 `;
