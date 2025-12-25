@@ -2,6 +2,7 @@ import { AnimatedThemeToggler } from "@/components/custom/animated-theme-toggler
 import { GitHubLink } from "@/components/custom/github-link";
 import { InfoDialog } from "@/components/custom/info-dialog";
 import ShadTooltip from "@/components/custom/shad-tooltip";
+import Credits from "@/components/custom/credits";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <ShadTooltip content="View on GitHub">
           <GitHubLink />
         </ShadTooltip>
+        <Credits />
         <InfoDialog />
         <AnimatedThemeToggler />
       </div>
