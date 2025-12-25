@@ -81,10 +81,12 @@ export default function HomePage() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="w-full max-w-md mx-auto">
         <div className="text-center mb-8">
-          <Icons.gitHub className="size-16! mx-auto mb-4" />
-          <h1 className="text-5xl md:text-7xl font-serif italic mb-3 tracking-tight">
-            GitStory
-          </h1>
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <Icons.gitHub className="size-12 md:size-16" />
+            <h1 className="text-5xl md:text-7xl tracking-tight font-[family-name:var(--font-architects-daughter)]">
+              GitStory
+            </h1>
+          </div>
           <p className="text-muted-foreground font-sans tracking-widest text-sm uppercase">
             Every Commit Tells a Story
           </p>

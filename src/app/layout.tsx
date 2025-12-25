@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Serif, Inter_Tight, Space_Mono } from "next/font/google";
+import {
+  Architects_Daughter,
+  Instrument_Serif,
+  Inter_Tight,
+  Space_Mono,
+} from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/context/providers";
 import { siteConfig } from "@/lib/config";
@@ -27,6 +32,13 @@ const spaceMono = Space_Mono({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-space-mono",
+});
+
+// Handwriting / notebook style font
+const architectsDaughter = Architects_Daughter({
+  variable: "--font-architects-daughter",
+  weight: "400",
+  subsets: ["latin"],
 });
 
 // Viewport configuration for proper mobile rendering
@@ -154,7 +166,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${instrumentSerif.variable} ${interTight.variable} ${spaceMono.variable}`}
+      className={`${instrumentSerif.variable} ${interTight.variable} ${spaceMono.variable} ${architectsDaughter.variable}`}
       suppressHydrationWarning
     >
       <head>
