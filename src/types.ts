@@ -31,6 +31,7 @@ export interface CommunityStats {
   following: number;
   totalStars: number;
   publicRepos: number;
+  badges: number;
 }
 
 export interface GitStoryData {
@@ -52,6 +53,7 @@ export interface GitStoryData {
   contributions: { date: string; count: number }[]; // Raw contribution history
   joinedAt: string; // ISO date string of when user joined
   platform?: "github" | "gitlab"; // Platform the data came from
+  grade?: string;
 }
 
 export enum SlideType {
